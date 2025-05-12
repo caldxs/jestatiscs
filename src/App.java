@@ -1,68 +1,42 @@
 import javax.swing.JOptionPane;
 
 public class App {
-
-    
-    public static double calcularArea(double comprimento, double largura) {
-        return comprimento * largura;
-    }
-
-    public static void mostrarInformacoes(String nome, String endereco, double area, String categoria) {
-        JOptionPane.showMessageDialog(null, String.format("Proprietario: %s\nEndereCo: %s\nArea: %.2f m²\nCategoria: %s", nome, endereco, area, categoria));
-    }
-
-    public static double calcularMedia(double soma, int totalJardins) {
-        return soma / totalJardins;
-    }
-
     public static void main(String[] args) {
-        double somaDasAreas = 0; 
-        int totalJardins = 0; 
-        int jardinsGrandes = 0; 
 
-        while (true) {
+        String nome = JOptionPane.showInputDialog("Digite o nome do cliente:");
+        String endereco = JOptionPane.showInputDialog("Digite o endereCo do cliente:");
+        String telefone = JOptionPane.showInputDialog("Digite o telefone do cliente:");
 
-            String nome = JOptionPane.showInputDialog("Qual o nome do proprietario?");
-            String endereco = JOptionPane.showInputDialog("Informe o endereco do jardim:");
+        Cliente cliente = new Cliente(nome, endereco, telefone);
+        JOptionPane.showMessageDialog(null, "Dados do Cliente:\n" + 
+                                            "Nome: " + nome + "\n" +
+                                            "Endereço: " + endereco + "\n" +
+                                            "Telefone: " + telefone);
 
+        double comprimento = Double.parseDouble(JOptionPane.showInputDialog("Digite o comprimento do jardim (em metros):"));
+        double largura = Double.parseDouble(JOptionPane.showInputDialog("Digite a largura do jardim (em metros):"));
 
-            double comprimento = 0, largura = 0;
-            while (true) {
-                try {
-                    comprimento = Double.parseDouble(JOptionPane.showInputDialog("Digite o comprimento do jardim :"));
-                    largura = Double.parseDouble(JOptionPane.showInputDialog("Digite a largura do jardim :"));
+        Jardim jardim = new Jardim(comprimento, largura);
+        double area = jardim.calcularArea();
 
-                    if (comprimento <= 0 || largura <= 0) {
-                        JOptionPane.showMessageDialog(null, "As medidas devem ser numeros positivos. Tente novamente.");
-                    } else {
-                        break;
-                    }
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, "Por favor, insira valores numericos validos.");
-                }
-            }
+        JOptionPane.showMessageDialog(null, "Area do Jardim: " + area + " m²");
 
-            double areaJardim = calcularArea(comprimento, largura);
-            totalJardins++;
+        String nomeServico = JOptionPane.showInputDialog("Digite o nome do servico:");
+        double preco = Double.parseDouble(JOptionPane.showInputDialog("Digite o preco do servico:"));
 
-            String categoriaJardim = (areaJardim < 100) ? "Jardim Pequeno" : "Jardim Grande";
-            if (areaJardim >= 100) {
-                jardinsGrandes++;
-            }
+        Servico servico = new Servico(nomeServico, preco);
+        double percentualDesconto = Double.parseDouble(JOptionPane.showInputDialog("Digite o percentual de desconto:"));
+        double valorComDesconto = servico.aplicarDesconto(percentualDesconto);
 
-            mostrarInformacoes(nome, endereco, areaJardim, categoriaJardim);
-
-            somaDasAreas += areaJardim;
-
-            int resposta = JOptionPane.showConfirmDialog(null, "Deseja cadastrar outro jardim?", "Cadastro de Jardins", JOptionPane.YES_NO_OPTION);
-            if (resposta == JOptionPane.NO_OPTION) {
-                break;
-            }
-        }
-
-        double mediaDasAreas = calcularMedia(somaDasAreas, totalJardins);
-        
-        String mensagemFinal = String.format("Resumo Final:\n\nMedia das Areas: %.2f m²\nJardins Grandes: %d", mediaDasAreas, jardinsGrandes);
-        JOptionPane.showMessageDialog(null, mensagemFinal);
-    }
+        JOptionPane.showMessageDialog(null, "Servico: " + nomeServico + "\n" + 
+                                            "Valor com desconto: R$ " + String.format("%.2f", valorComDesconto));        
+        cliente.exibir();
+        JOptionPane.showMessageDialog(null,  "Nome:" + nome + "\n" + 
+        "Endereco:" + endereco + "\n" +
+        "Telefone:" + telefone + "\n"+ 
+        "Area do Jardim: " + area+"m²"+"\n"+
+        "Desconto: "+"-"+percentualDesconto+"R$"+ "\n"+
+        "Valor do Servico: R$" + valorComDesconto);                                    
+}
+                                                       
 }
