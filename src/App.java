@@ -1,34 +1,54 @@
 import javax.swing.JOptionPane;
+import java.util.Arrays;
 
 public class App {
-    
-    public static void main(String[] args) throws Exception {
-        
-        double areaJardim, comprimento, largura;
-        double somaArea = 0;
-        int areas=0;
-        int areasGrandes=0;
-        while (true) {
-            comprimento = Double.parseDouble(JOptionPane.showInputDialog(null,"Comprimento do Jardim: "));
-            largura = Double.parseDouble(JOptionPane.showInputDialog(null,"Largura do Jardim: "));
-            areas++;
-            
-            String[] tamanho = {"Pequeno","Grande"};
-            areaJardim = comprimento*largura;
 
-            if (areaJardim < 100) {
-                JOptionPane.showMessageDialog(null, "Area do Jardim: "+areaJardim+"\nTamanho: "+tamanho[0]);
-            }else {
-                JOptionPane.showMessageDialog(null, "Area do Jardim: "+areaJardim+"\nTamanho: "+tamanho[1]);
-                areasGrandes++;
+    public static void main(String[] args) {
+        
+        String input = JOptionPane.showInputDialog("Quantos servico desejar solicitar?");
+        int n = Integer.parseInt(input);
+
+        double[] valores = new double[n];
+
+        for (int i = 0; i < n; i++) {
+            String valorStr = JOptionPane.showInputDialog("Digite o valor do servico " + (i + 1) + ":");
+            valores[i] = Double.parseDouble(valorStr);
+        }
+
+
+        double moda = calcularModa(valores);
+
+        Arrays.sort(valores);
+
+        StringBuilder resultado = new StringBuilder("Tabela do valor de servico:\n");
+        for (int i = 0; i < n; i++) {
+            resultado.append("Servico ").append(i + 1).append(": ").append(valores[i]).append("\n");
+        }
+
+        resultado.append("\nModa dos valores: ").append(moda);
+
+        JOptionPane.showMessageDialog(null, resultado.toString());
+    }
+
+    public static double calcularModa(double[] array) {
+        double moda = array[0];
+        int maxFreq = 0;
+
+        for (int i = 0; i < array.length; i++) {
+            int count = 0;
+
+            for (int j = 0; j < array.length; j++) {
+                if (array[i] == array[j]) {
+                    count++;
+                }
             }
-            somaArea = somaArea + areaJardim;
-            int loop = JOptionPane.showConfirmDialog(null, "Deseja Adicionar mais um Terreno? ");
-            if (loop != JOptionPane.YES_OPTION) {     
-                break;
+
+            if (count > maxFreq) {
+                maxFreq = count;
+                moda = array[i];
             }
         }
-        double mediaArea = somaArea/areas;
-        JOptionPane.showMessageDialog(null, "A media das Areas:"+mediaArea+"\n¡reas Grandes: "+areasGrandes);
+
+        return moda;
     }
 }
