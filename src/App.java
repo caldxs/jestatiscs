@@ -1,54 +1,68 @@
 import javax.swing.JOptionPane;
-import java.util.Arrays;
 
 public class App {
 
-    public static void main(String[] args) {
-        
-        String input = JOptionPane.showInputDialog("Quantos servico desejar solicitar?");
-        int n = Integer.parseInt(input);
-
-        double[] valores = new double[n];
-
-        for (int i = 0; i < n; i++) {
-            String valorStr = JOptionPane.showInputDialog("Digite o valor do servico " + (i + 1) + ":");
-            valores[i] = Double.parseDouble(valorStr);
-        }
-
-
-        double moda = calcularModa(valores);
-
-        Arrays.sort(valores);
-
-        StringBuilder resultado = new StringBuilder("Tabela do valor de servico:\n");
-        for (int i = 0; i < n; i++) {
-            resultado.append("Servico ").append(i + 1).append(": ").append(valores[i]).append("\n");
-        }
-
-        resultado.append("\nModa dos valores: ").append(moda);
-
-        JOptionPane.showMessageDialog(null, resultado.toString());
+    
+    public static double calcularArea(double comprimento, double largura) {
+        return comprimento * largura;
     }
 
-    public static double calcularModa(double[] array) {
-        double moda = array[0];
-        int maxFreq = 0;
+    public static void mostrarInformacoes(String nome, String endereco, double area, String categoria) {
+        JOptionPane.showMessageDialog(null, String.format("Proprietario: %s\nEndereCo: %s\nArea: %.2f m²\nCategoria: %s", nome, endereco, area, categoria));
+    }
 
-        for (int i = 0; i < array.length; i++) {
-            int count = 0;
+    public static double calcularMedia(double soma, int totalJardins) {
+        return soma / totalJardins;
+    }
 
-            for (int j = 0; j < array.length; j++) {
-                if (array[i] == array[j]) {
-                    count++;
+    public static void main(String[] args) {
+        double somaDasAreas = 0; 
+        int totalJardins = 0; 
+        int jardinsGrandes = 0; 
+
+        while (true) {
+
+            String nome = JOptionPane.showInputDialog("Qual o nome do proprietario?");
+            String endereco = JOptionPane.showInputDialog("Informe o endereco do jardim:");
+
+
+            double comprimento = 0, largura = 0;
+            while (true) {
+                try {
+                    comprimento = Double.parseDouble(JOptionPane.showInputDialog("Digite o comprimento do jardim :"));
+                    largura = Double.parseDouble(JOptionPane.showInputDialog("Digite a largura do jardim :"));
+
+                    if (comprimento <= 0 || largura <= 0) {
+                        JOptionPane.showMessageDialog(null, "As medidas devem ser numeros positivos. Tente novamente.");
+                    } else {
+                        break;
+                    }
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Por favor, insira valores numericos validos.");
                 }
             }
 
-            if (count > maxFreq) {
-                maxFreq = count;
-                moda = array[i];
+            double areaJardim = calcularArea(comprimento, largura);
+            totalJardins++;
+
+            String categoriaJardim = (areaJardim < 100) ? "Jardim Pequeno" : "Jardim Grande";
+            if (areaJardim >= 100) {
+                jardinsGrandes++;
+            }
+
+            mostrarInformacoes(nome, endereco, areaJardim, categoriaJardim);
+
+            somaDasAreas += areaJardim;
+
+            int resposta = JOptionPane.showConfirmDialog(null, "Deseja cadastrar outro jardim?", "Cadastro de Jardins", JOptionPane.YES_NO_OPTION);
+            if (resposta == JOptionPane.NO_OPTION) {
+                break;
             }
         }
 
-        return moda;
+        double mediaDasAreas = calcularMedia(somaDasAreas, totalJardins);
+        
+        String mensagemFinal = String.format("Resumo Final:\n\nMedia das Areas: %.2f m²\nJardins Grandes: %d", mediaDasAreas, jardinsGrandes);
+        JOptionPane.showMessageDialog(null, mensagemFinal);
     }
 }
