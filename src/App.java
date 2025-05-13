@@ -1,156 +1,216 @@
+import javax.swing.JOptionPane;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import javax.swing.JOptionPane;
 
 public class App {
-    
-    public static void main(String[] args) throws Exception {
-        
-        double areaJardim=0, comprimento, largura;
-        double somaArea =0;
-        int areas=0;
-        int areasGrandes=0, areasPequenas=0;
-        double[] areasCalculadas = new double[100];
-        String[] tiposDeArea = new String[100]; 
-        int indice = 0, soma=0,contServ=0;
-        String todasAreas = "";
-        String desconto="";
-        String nome = JOptionPane.showInputDialog("Prezado Cliente \nInforme seus Dados\nNome:");
-        String endereco = JOptionPane.showInputDialog("Endereço:");
-        while (true) {
-            comprimento = Double.parseDouble(JOptionPane.showInputDialog(null,"Comprimento do Jardim: "));
-            largura = Double.parseDouble(JOptionPane.showInputDialog(null,"Largura do Jardim: "));
-            areas++;
-            String[] tamanho = {"Pequeno","Grande"};
-            areaJardim = comprimento*largura;
 
-            areasCalculadas[indice] = areaJardim;
-            indice++;
-            
-            if (areaJardim < 100) {
-                JOptionPane.showMessageDialog(null, "Area do Jardim: "+areaJardim+"\nTamanho: "+tamanho[0]);
-                areasPequenas++;
-                tiposDeArea[indice - 1] = tamanho[0];
-            }else {
-                JOptionPane.showMessageDialog(null, "Area do Jardim: "+areaJardim+"\nTamanho: "+tamanho[1]);
-                areasGrandes++;
-                tiposDeArea[indice - 1] = tamanho[1];
+    public static void main(String[] args) throws Exception {
+        Cliente cliente = new Cliente();
+        cliente.cadastrarDados();
+
+        Jardim[] jardins = cadastrarJardins();
+        double somaArea = calcularAreaTotal(jardins);
+
+        int totalServicos = 0;
+        double somaServicos = 0;
+        Servico[] servicosContratados = new Servico[100];
+        int servicosIndex = 0;
+
+        while (true) {
+            Servico servico = escolherServico();
+            if (servico != null) {
+                servicosContratados[servicosIndex++] = servico;
+                somaServicos += servico.getValor();
+                totalServicos++;
             }
-            somaArea = somaArea + areaJardim;
-            int loop = JOptionPane.showConfirmDialog(null, "Deseja Adicionar mais um Terreno? ");
-            if (loop != JOptionPane.YES_OPTION) {     
+
+            int loop = JOptionPane.showConfirmDialog(null, "Deseja contratar mais serviços?");
+            if (loop != JOptionPane.YES_OPTION) {
                 break;
             }
-
         }
-        int qtdAdubacao = 0, qtdPoda = 0, qtdManutencao = 0, qtdPlantio = 0;
+
+        mostrarFrequenciaServicos(servicosContratados, totalServicos);
+
+        double desconto = calcularDesconto(somaServicos);
+        double totalComDesconto = somaServicos - desconto;
+
+        gerarRelatorioFinal(cliente, jardins, somaArea, totalServicos, somaServicos, desconto, totalComDesconto);
+        
+        // Estatísticas Descritivas
+        estatisticasDescritivas(jardins, somaArea);
+    }
+
+    private static Jardim[] cadastrarJardins() {
+        Jardim[] jardins = new Jardim[100];
+        int indice = 0;
         while (true) {
-            int servico = Integer.parseInt(JOptionPane.showInputDialog("Qual Serviço Deseja Contratar:\n1-Adubação R$300,00\n2-Poda R$150,00\n3-Manutenção R$90,00\n4-Plantio R$400,00\n5-Sair"));
-            if (servico!=5) {
-             contServ++;
-            }else{
-             break;
-            }
-             String escolhido = "";
-             switch (servico) {
-                 case 1: escolhido = "Adubação"; soma = soma + 300; qtdAdubacao++; break;
-                 case 2: escolhido = "Poda"; soma = soma + 150; qtdPoda++; break;
-                 case 3: escolhido = "Manutenção"; soma = soma + 90;qtdManutencao++; break;
-                 case 4: escolhido = "Plantio"; soma = soma + 400;qtdPlantio++; break;
-             }
-             JOptionPane.showMessageDialog(null, "Serviço Contratado: "+escolhido);
-             int loop = JOptionPane.showConfirmDialog(null, "Deseja contratar mais serviços?");
-             if (loop != JOptionPane.YES_OPTION) {
-                 break;
-             }
-        }
-        double desc = 0.20 * soma;
-        double descsoma = soma - desc;
-        double freqAdubacao = (double) qtdAdubacao / contServ;
-        double freqPoda = (double) qtdPoda / contServ;
-        double freqManutencao = (double) qtdManutencao / contServ;
-        double freqPlantio = (double) qtdPlantio / contServ;
-        JOptionPane.showMessageDialog(null,
-            "Frequência Relativa dos Serviços Contratados:\n" +
-            "Adubação: " + String.format("%.2f", freqAdubacao * 100) + "%\n" +
-            "Poda: " + String.format("%.2f", freqPoda * 100) + "%\n" +
-            "Manutenção: " + String.format("%.2f", freqManutencao * 100) + "%\n" +
-            "Plantio: " + String.format("%.2f", freqPlantio * 100) + "%"
-        );
-        
-        Grafico grafico = new Grafico(
-            "Gráfico de Serviços Contratados", 
-            qtdAdubacao, 
-            qtdPoda, 
-            qtdManutencao, 
-            qtdPlantio
-        );
-        
-        grafico.setSize(800, 600);
-        
-        grafico.setLocationRelativeTo(null);
+            double comprimento = Double.parseDouble(JOptionPane.showInputDialog("Comprimento do Jardim: "));
+            double largura = Double.parseDouble(JOptionPane.showInputDialog("Largura do Jardim: "));
+            Jardim jardim = new Jardim(comprimento, largura);
+            jardins[indice++] = jardim;
 
-        grafico.setVisible(true);
-        int fidel = JOptionPane.showConfirmDialog(null, "Possui Cadastro de Fidelidade na Empresa? ");
-        String servcontratados = "\nServiço(s) Contratado(s):\nAdubação: "+qtdAdubacao+"\nPoda: "+qtdPoda+"\nManutenção: "+qtdManutencao+"\nPlantio: "+qtdPlantio;
-        if (fidel == JOptionPane.YES_OPTION) {
-            desconto = "Quantidade de Serviços Contratados: "+contServ+servcontratados+"\nValor Total: R$"+soma+"\nDesconto de: R$-"+desc+"\nValor Total com Desconto: R$"+descsoma;
-        }else{
-            desconto = "Quantidade de Serviços Contratados: "+contServ+servcontratados+"\nValor Total: R$"+soma;
+            int loop = JOptionPane.showConfirmDialog(null, "Deseja Adicionar mais um Jardim?");
+            if (loop != JOptionPane.YES_OPTION) {
+                break;
+            }
         }
-        JOptionPane.showMessageDialog(null, desconto);
-        double mediaArea = somaArea/areas;
-        double moda =0;
-        int maiorFrequencia =0;
-        for (int i = 0; i < indice; i++) {
-            todasAreas += "Área " + (i+1) +" Tipo("+tiposDeArea[i]+")"+": "+areasCalculadas[i] +"m²"+"\n";
+        return Arrays.copyOf(jardins, indice);
+    }
+
+    private static double calcularAreaTotal(Jardim[] jardins) {
+        double somaArea = 0;
+        for (Jardim jardim : jardins) {
+            somaArea += jardim.getArea();
         }
-        JOptionPane.showMessageDialog(null, todasAreas);
-        for (int i = 0; i < areas; i++) {
-            int frequencia=0;
-            for (int j = 0; j < areas; j++) {
-                if (Math.round(areasCalculadas[i]) == Math.round(areasCalculadas[j])) {
+        return somaArea;
+    }
+
+    private static Servico escolherServico() {
+        int servicoEscolhido = Integer.parseInt(JOptionPane.showInputDialog(
+                "Escolha o serviço:\n1-Irrigação R$350\n2-Limpeza de Jardim R$120\n3-Podas Especiais R$200\n4-Paisagismo R$450\n5-Sair"));
+        
+        switch (servicoEscolhido) {
+            case 1: return new Servico("Irrigação", 350);
+            case 2: return new Servico("Limpeza de Jardim", 120);
+            case 3: return new Servico("Podas Especiais", 200);
+            case 4: return new Servico("Paisagismo", 450);
+            default: return null;
+        }
+    }
+
+    private static void mostrarFrequenciaServicos(Servico[] servicosContratados, int totalServicos) {
+        int qtdIrrigacao = 0, qtdLimpeza = 0, qtdPodasEspeciais = 0, qtdPaisagismo = 0;
+        for (Servico servico : servicosContratados) {
+            if (servico == null) break;
+
+            switch (servico.getNome()) {
+                case "Irrigação": qtdIrrigacao++; break;
+                case "Limpeza de Jardim": qtdLimpeza++; break;
+                case "Podas Especiais": qtdPodasEspeciais++; break;
+                case "Paisagismo": qtdPaisagismo++; break;
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, 
+            String.format("Frequência de Serviços Contratados:\nIrrigação: %.2f%%\nLimpeza de Jardim: %.2f%%\nPodas Especiais: %.2f%%\nPaisagismo: %.2f%%", 
+                          (double) qtdIrrigacao / totalServicos * 100,
+                          (double) qtdLimpeza / totalServicos * 100,
+                          (double) qtdPodasEspeciais / totalServicos * 100,
+                          (double) qtdPaisagismo / totalServicos * 100)
+        );
+    }
+
+    private static double calcularDesconto(double somaServicos) {
+        return somaServicos * 0.20;
+    }
+
+    private static void gerarRelatorioFinal(Cliente cliente, Jardim[] jardins, double somaArea, int totalServicos, double somaServicos, double desconto, double totalComDesconto) throws IOException {
+        String relatorio = cliente.gerarRelatorio(jardins, somaArea, totalServicos, somaServicos, desconto, totalComDesconto);
+
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("RelatorioFinal.txt"), StandardCharsets.UTF_8))) {
+            writer.write(relatorio);
+            JOptionPane.showMessageDialog(null, "Relatório Final salvo no arquivo 'RelatorioFinal.txt'.");
+        }
+    }
+
+    private static void estatisticasDescritivas(Jardim[] jardins, double somaArea) {
+        double mediaArea = somaArea / jardins.length;
+
+        // Moda (valor mais frequente)
+        double moda = 0;
+        int maiorFrequencia = 0;
+        for (int i = 0; i < jardins.length; i++) {
+            int frequencia = 0;
+            for (int j = 0; j < jardins.length; j++) {
+                if (Math.round(jardins[i].getArea()) == Math.round(jardins[j].getArea())) {
                     frequencia++;
                 }
             }
             if (frequencia > maiorFrequencia) {
-                maiorFrequencia =frequencia;
-                moda =areasCalculadas[i];
-            } 
+                maiorFrequencia = frequencia;
+                moda = jardins[i].getArea();
+            }
         }
-        double[] vetorOrdenado = Arrays.copyOf(areasCalculadas, areas);
-        Arrays.sort(vetorOrdenado);
+
+        // Mediana
+        double[] areasOrdenadas = new double[jardins.length];
+        for (int i = 0; i < jardins.length; i++) {
+            areasOrdenadas[i] = jardins[i].getArea();
+        }
+        Arrays.sort(areasOrdenadas);
         double mediana;
-        if (areas % 2 ==0) {
-            mediana = (vetorOrdenado[areas / 2 - 1] + vetorOrdenado[areas / 2]) / 2;
-        }else{
-            mediana = vetorOrdenado[areas / 2];
+        if (jardins.length % 2 == 0) {
+            mediana = (areasOrdenadas[jardins.length / 2 - 1] + areasOrdenadas[jardins.length / 2]) / 2;
+        } else {
+            mediana = areasOrdenadas[jardins.length / 2];
         }
-        double maximo = vetorOrdenado[areas-1];
-        double minimo = vetorOrdenado[0];
-        
-        StringBuilder ordenadas = new StringBuilder();
-        for (double area : vetorOrdenado) {
-            ordenadas.append(String.format("%.2f", area)+"m²").append(" | ");
-        }
-        JOptionPane.showMessageDialog(null, "Moda das Áreas: " + String.format("%.2f", moda)+"m²");
-        JOptionPane.showMessageDialog(null, ordenadas.toString()+"\nMediana: "+mediana+"m²");
-        JOptionPane.showMessageDialog(null, "A média das Áreas: "+String.format("%.2f",mediaArea)+"m²"+"\nÁreas Grandes: "+areasGrandes+"\nÁreas Pequenas: "+areasPequenas+"\nValor Mínimo: "+minimo+"m²"+"\nValor Máximo: "+maximo+"m²");
-        String relatorioFinal = "-----------------Relatório Final-----------------\nNome do Cliente: "+nome+"\nEndereço: "+endereco+"\n"+todasAreas+"\n"+desconto+
-        "\nModa das Áreas: " + String.format("%.2f", moda)+"m²"+
-        "\n"+ordenadas.toString()+"\nMediana: "+mediana+"m²"+
-        "\nA média das Áreas: "+String.format("%.2f",mediaArea)+"m²"+"\nÁreas Grandes: "+areasGrandes+"\nÁreas Pequenas: "+areasPequenas+"\nValor Mínimo: "+minimo+"m²"+"\nValor Máximo: "+maximo+"m²"
-        ;
-        JOptionPane.showMessageDialog(null,relatorioFinal, "Relatório Final", JOptionPane.INFORMATION_MESSAGE);
-        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("RelatorioFinal.txt"), StandardCharsets.UTF_8))){
-                    JOptionPane.showMessageDialog(null, "As Estatísticas do Jogo foram salvas no Arquivo RelatorioFinal.txt", "Obrigado por Jogar!", JOptionPane.INFORMATION_MESSAGE);
-                    writer.write(relatorioFinal);
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(null,"Ocorreu um erro ao tentar gravar arquivos");
-                }
+
+        // Máximo e Mínimo
+        double maximo = areasOrdenadas[areasOrdenadas.length - 1];
+        double minimo = areasOrdenadas[0];
+
+        // Mostrar resultados
+        JOptionPane.showMessageDialog(null, String.format("Estatísticas Descritivas\nMédia: %.2f m²\nModa: %.2f m²\nMediana: %.2f m²\nMáximo: %.2f m²\nMínimo: %.2f m²", mediaArea, moda, mediana, maximo, minimo));
+    }
+}
+
+class Jardim {
+    private double comprimento;
+    private double largura;
+
+    public Jardim(double comprimento, double largura) {
+        this.comprimento = comprimento;
+        this.largura = largura;
+    }
+
+    public double getArea() {
+        return comprimento * largura;
+    }
+}
+
+class Servico {
+    private String nome;
+    private double valor;
+
+    public Servico(String nome, double valor) {
+        this.nome = nome;
+        this.valor = valor;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public double getValor() {
+        return valor;
+    }
+}
+
+class Cliente {
+    private String nome;
+    private String endereco;
+
+    public void cadastrarDados() {
+        this.nome = JOptionPane.showInputDialog("Informe seu nome:");
+        this.endereco = JOptionPane.showInputDialog("Informe seu endereço:");
+    }
+
+    public String gerarRelatorio(Jardim[] jardins, double somaArea, int totalServicos, double somaServicos, double desconto, double totalComDesconto) {
+        StringBuilder relatorio = new StringBuilder();
+        relatorio.append("Nome: ").append(nome).append("\n")
+                 .append("Endereço: ").append(endereco).append("\n")
+                 .append("Total de Jardins: ").append(jardins.length).append("\n")
+                 .append("Área Total: ").append(somaArea).append(" m²\n")
+                 .append("Serviços Contratados: ").append(totalServicos).append("\n")
+                 .append("Valor Total dos Serviços: R$ ").append(somaServicos).append("\n")
+                 .append("Desconto: R$ ").append(desconto).append("\n")
+                 .append("Total com Desconto: R$ ").append(totalComDesconto).append("\n");
+
+        return relatorio.toString();
     }
 }
